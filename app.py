@@ -12,10 +12,12 @@ twitter_shit = {
 from flask import *
 app = Flask(__name__)
 
+# Redirect / to /freer
 @app.route('/', methods=['GET'])
 def home_page():
     return render_template('index.html')
 
+# Renders a template
 @app.route('/freer', methods=['GET'])
 def free_this_article():
     try:
@@ -29,6 +31,7 @@ def free_this_article():
     else:
         return render_template('error.html')
 
+# Redirects automatically to the article
 @app.route('/direct_freer', methods=['GET'])
 def free_this_article_direct():
     try:
@@ -42,21 +45,7 @@ def free_this_article_direct():
     else:
         return 'What the fuck?'
 
-@app.route('/wp_freer', methods=['GET'])
-def free_this_article_wp():
-    try:
-        wanted_url = request.args.to_dict()['wanted']
-    except:
-        return 'what da fuck?'
-    
-    if (is_url(wanted_url) and is_medium(wanted_url)):
-        res = freer_user.create_tweet(text=f'{hashlib.md5((str(random.randint(0, 9999)) + str(random.randint(9999, 99999999))).encode()).hexdigest()} \n {wanted_url}')
-        return res.data['text'].rsplit(' ')[-1]
-    else:
-        return 'What the fuck?'
-
-
-
+# Check if the url is from Medium or not, Einstein's way
 def is_medium(url):
     if (url[0:8] != 'https://' and url[0:7] != 'http://'):
         url = 'https://' + url
@@ -70,12 +59,7 @@ def is_medium(url):
     else:
         return False
 
-def refine_url(url: str):
-    print('before of refinery (inside function): ', url)
-    url = urllib.parse.unquote(url)
-    print('after refinery: ', url)
-    return url
-
+# Check if the user inputed url or some random string
 def is_url(url: str):
     if (validators.url(url)):
         return True
@@ -84,7 +68,7 @@ def is_url(url: str):
         return validators.url(url)
 
 if __name__ == '__main__':
-    import tweepy, random, hashlib, validators, urllib.parse, requests
+    import tweepy, random, hashlib, validators, requests
     freer_user = tweepy.Client(consumer_key=twitter_shit['api_key'], consumer_secret=twitter_shit['api_key_secret'], access_token=twitter_shit['acc_token'], access_token_secret=twitter_shit['acc_token_secret'])
-    # app.run(port=8000)
-    app.run(port=5001, debug=True)
+    # app.run(port=8000)    # Uncomment if in production
+    app.run(port=5001, debug=True)  # Comment if in production!
